@@ -6,6 +6,8 @@ use App\Model\Service\Eloquent\EloquentSpentService;
 use App\Model\Service\TimeHelper;
 use App\Providers\AppServiceProvider;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Helper\TableStyle;
+
 
 class StatSpentTime extends Command
 {
@@ -53,7 +55,6 @@ class StatSpentTime extends Command
         foreach ($data as $item) {
             $stat[] = [
                 $item['gitlab_created_at'],
-                $item['project'],
                 '#' . $item['iid'] . ' ' . $item['issue_title'],
                 $item['hours'],
                 $item['note_description'],
@@ -61,7 +62,12 @@ class StatSpentTime extends Command
             $total += $item['hours'];
         }
 
-        $this->table(['gitlab_created_at', 'project', 'issue', 'hours', 'description'], $stat);
+        $tableStyle = new TableStyle();
+        $tableStyle->setVerticalBorderChar(';');
+        $tableStyle->setHorizontalBorderChar('');
+        $tableStyle->setCrossingChar('');
+
+        $this->table(['gitlab_created_at', 'issue', 'hours', 'description'], $stat, $tableStyle);
 
         $this->warn(sprintf('Total spent time: %s', TimeHelper::getHoursIntervalAsString($total)));
     }
